@@ -1,0 +1,56 @@
+import knex from "knex";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const {
+  DB_DIALECT,
+  DB_HOST,
+  DB_NAME,
+  DB_PASSWORD,
+  DB_USER,
+  DB_PORT,
+  NODE_ENV,
+  TEST_DB_DIALECT,
+  TEST_DB_HOST,
+  TEST_DB_NAME,
+  TEST_DB_PASSWORD,
+  TEST_DB_USER,
+  TEST_DB_PORT,
+} = process.env;
+
+let initConnection;
+
+const initializeDB = async () => {
+  try {
+    if (NODE_ENV === "test") {
+      initConnection = knex({
+        client: TEST_DB_DIALECT,
+        connection: {
+          host: TEST_DB_HOST,
+          port: Number(TEST_DB_PORT),
+          user: TEST_DB_USER,
+          password: TEST_DB_PASSWORD,
+          database: TEST_DB_NAME,
+        },
+      });
+    } else {
+      initConnection = knex({
+        client: DB_DIALECT,
+        connection: {
+          host: DB_HOST,
+          port: Number(DB_PORT),
+          user: DB_USER,
+          password: DB_PASSWORD,
+          database: DB_NAME,
+        },
+        debug: true
+      });
+    }
+    console.log(`⚡️[Database]: Database successfully connected`);
+    return initConnection;
+  } catch (error) {
+    console.log(error);
+  }
+};
+export default initializeDB;
