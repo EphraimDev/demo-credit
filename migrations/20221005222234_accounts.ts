@@ -13,8 +13,11 @@ export async function up(knex: Knex): Promise<void> {
     table.float("book_balance", 2).defaultTo(0);
     table.float("total_credit", 2).defaultTo(0);
     table.float("total_debit", 2).defaultTo(0);
-    table.boolean("isActive").defaultTo(true);
-    table.timestamps();
+    table.boolean("is_active").defaultTo(true);
+    table.timestamp("created_at").defaultTo(knex.raw("CURRENT_TIMESTAMP"));
+    table
+      .timestamp("updated_at")
+      .defaultTo(knex.raw("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"));
   });
 }
 

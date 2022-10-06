@@ -18,7 +18,10 @@ export async function up(knex: Knex): Promise<void> {
     table.float("amount", 2).notNullable();
     table.enu("status", ["PENDING", "COMPLETED", "FAILED"]).defaultTo("PENDING");
     table.string("comment", 255).nullable();
-    table.timestamps();
+    table.timestamp("created_at").defaultTo(knex.raw("CURRENT_TIMESTAMP"));
+    table
+      .timestamp("updated_at")
+      .defaultTo(knex.raw("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"));
   });
 }
 

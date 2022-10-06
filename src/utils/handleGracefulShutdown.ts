@@ -1,10 +1,10 @@
 import http from "http";
-import { db } from "../..";
+import { dbConn } from "../..";
 
 export default function handleGracefulShutdown(server: http.Server) {
   server.close(async function (err) {
     console.log("Http server closed!");
-    db.then((conn) => conn?.destroy()).catch((err) => console.log(err));
+    dbConn.destroy();
     if (err) {
       console.error(err);
       process.exit(1);

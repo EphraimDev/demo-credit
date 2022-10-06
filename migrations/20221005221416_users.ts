@@ -9,7 +9,11 @@ export async function up(knex: Knex): Promise<void> {
     table.string("phone_number", 100).nullable();
     table.string("password", 100).nullable();
     table.string("token", 255).nullable();
-    table.timestamps();
+    table.timestamp("created_at").defaultTo(knex.raw("CURRENT_TIMESTAMP"));
+    table
+      .timestamp("updated_at")
+      .defaultTo(knex.raw("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"));
+
   });
 }
 

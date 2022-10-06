@@ -5,7 +5,8 @@ import cors from "cors";
 import http from "http";
 import rTracer from "cls-rtracer";
 import handleGracefulShutdown from "./src/utils/handleGracefulShutdown";
-import initializeDB from "./src/database/connect";
+import dbConn from "./src/database/connect";
+import appRoutes from "./src/routes";
 
 dotenv.config();
 
@@ -28,14 +29,20 @@ app.get("/", (_req: Request, res: Response) => {
   res.send("Demo Credit Server");
 });
 
+app.use("/api/v1", appRoutes);
+
 app.use("*", (_req: Request, res: Response) => {
   res.status(404).send("This route does not exist");
 });
 
-const db = initializeDB();
-
-server.listen(port, () => {
-  console.log(`⚡️[server]: Server is running at port ${port}`);
+server.listen(port, async () => {
+  try {
+    await dbConn.raw("SELECT now()");
+    console.log(`⚡️[database]: Database is connected`);
+    console.log(`⚡️[server]: Server is running at port ${port}`);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 const sigs = ["SIGINT", "SIGTERM", "SIGQUIT"];
@@ -43,4 +50,4 @@ sigs.forEach((sig) => {
   process.on(sig, () => handleGracefulShutdown(server));
 });
 
-export { server, db };
+export { server, dbConn };

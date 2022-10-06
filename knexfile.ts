@@ -10,7 +10,6 @@ const {
   DB_PASSWORD,
   DB_USER,
   DB_PORT,
-  NODE_ENV,
   TEST_DB_DIALECT,
   TEST_DB_HOST,
   TEST_DB_NAME,
@@ -18,8 +17,6 @@ const {
   TEST_DB_USER,
   TEST_DB_PORT,
 } = process.env;
-
-// Update with your config settings.
 
 const config: { [key: string]: Knex.Config } = {
   development: {
@@ -70,4 +67,4 @@ const config: { [key: string]: Knex.Config } = {
   },
 };
 
-module.exports = config;
+export default config;
