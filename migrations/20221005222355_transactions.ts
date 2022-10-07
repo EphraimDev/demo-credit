@@ -8,15 +8,21 @@ export async function up(knex: Knex): Promise<void> {
       .unsigned()
       .index()
       .references("id")
-      .inTable("accounts");
+      .inTable("accounts")
+      .nullable();
     table
       .integer("to_account")
       .unsigned()
       .index()
       .references("id")
       .inTable("accounts");
-    table.float("amount", 2).notNullable();
-    table.enu("status", ["PENDING", "COMPLETED", "FAILED"]).defaultTo("PENDING");
+    table.string("amount", 255).notNullable();
+    table
+      .enu("status", ["PENDING", "COMPLETED", "FAILED"])
+      .defaultTo("PENDING");
+    table
+      .enu("type", ["FUNDING", "TRANSFER"]);
+    table.string("ref", 255).notNullable();
     table.string("comment", 255).nullable();
     table.timestamp("created_at").defaultTo(knex.raw("CURRENT_TIMESTAMP"));
     table

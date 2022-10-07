@@ -13,9 +13,31 @@ class TransactionService {
     }
   }
 
-  static async findUserTransactions(where: TransactionWhereInterface, orWhere: TransactionWhereInterface) {
+  static async findUserTransactions(
+    where: TransactionWhereInterface,
+    orWhere: TransactionWhereInterface
+  ) {
     try {
       return Transaction().where(where).orWhere(orWhere);
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async findPendingTransactions(where: TransactionWhereInterface) {
+    try {
+      return Transaction().where(where);
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async updateTransaction(
+    where: TransactionWhereInterface,
+    input: TransactionWhereInterface
+  ) {
+    try {
+      return Transaction().where(where).update(input);
     } catch (error: any) {
       throw new Error(error.message);
     }

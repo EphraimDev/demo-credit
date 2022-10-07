@@ -5,14 +5,15 @@ export async function up(knex: Knex): Promise<void> {
     table.increments("id");
     table
       .integer("user_id")
+      .unique()
       .unsigned()
       .index()
       .references("id")
       .inTable("users");
-    table.float("available_balance", 2).defaultTo(0);
-    table.float("book_balance", 2).defaultTo(0);
-    table.float("total_credit", 2).defaultTo(0);
-    table.float("total_debit", 2).defaultTo(0);
+    table.string("available_balance", 255).defaultTo(0);
+    table.string("book_balance", 255).defaultTo(0);
+    table.string("total_credit", 255).defaultTo(0);
+    table.string("total_debit", 255).defaultTo(0);
     table.boolean("is_active").defaultTo(true);
     table.timestamp("created_at").defaultTo(knex.raw("CURRENT_TIMESTAMP"));
     table

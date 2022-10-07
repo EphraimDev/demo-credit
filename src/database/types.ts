@@ -12,7 +12,7 @@ export interface UserWhereInterface {
   last_name?: string;
   email?: string;
   phone_number?: string;
-  token?: string
+  token?: string;
 }
 
 export interface AccountCreateInterface {
@@ -36,16 +36,20 @@ export interface AccountWhereInterface {
 
 export interface TransactionCreateInterface {
   to_account: number;
-  from_account: number;
-  amount: number;
+  from_account?: number;
+  amount: string;
   status?: "PENDING" | "COMPLETED" | "FAILED";
+  type: "FUNDING" | "TRANSFER";
   comment?: string;
+  ref: string;
 }
 
 export interface TransactionWhereInterface {
   id?: number;
   to_account?: number;
   from_account?: number;
-  amount?: number;
+  amount?: string;
   status?: "PENDING" | "COMPLETED" | "FAILED";
+  type?: "FUNDING" | "TRANSFER";
+  ref?: string;
 }

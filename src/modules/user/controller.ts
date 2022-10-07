@@ -6,10 +6,7 @@ import { handleResponse } from "../../middlewares";
 import UserService from "./service";
 import AccessToken from "../../utils/accessToken";
 import AccountService from "../account/service";
-import {
-  AccountCreateInterface,
-  AccountWhereInterface,
-} from "../../database/types";
+import { AccountWhereInterface } from "../../database/types";
 import TransactionService from "../transaction/service";
 
 dotenv.config();

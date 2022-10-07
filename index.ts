@@ -7,8 +7,11 @@ import rTracer from "cls-rtracer";
 import handleGracefulShutdown from "./src/utils/handleGracefulShutdown";
 import dbConn from "./src/database/connect";
 import appRoutes from "./src/routes";
+import { ProcessTransactions } from "./src/jobs";
 
 dotenv.config();
+
+ProcessTransactions();
 
 const app: Express = express();
 const server = http.createServer(app);

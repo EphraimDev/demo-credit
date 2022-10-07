@@ -17,6 +17,17 @@ class AccountService {
       throw new Error(error.message);
     }
   }
+
+  static async updateAccount(
+    where: AccountWhereInterface,
+    input: AccountWhereInterface
+  ) {
+    try {
+      return Account().where(where).update(input);
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
 }
 
 export default AccountService;
