@@ -6,7 +6,10 @@ import { handleResponse } from "../../middlewares";
 import UserService from "./service";
 import AccessToken from "../../utils/accessToken";
 import AccountService from "../account/service";
-import { AccountInterface, AccountWhereInterface, UserInterface } from "../../database/types";
+import {
+  AccountInterface,
+  AccountWhereInterface,
+} from "../../database/types";
 import TransactionService from "../transaction/service";
 
 dotenv.config();
@@ -21,7 +24,10 @@ class UserController {
         return handleResponse(
           req,
           res,
-          { status: "error", message: "User with this phone number already exist" },
+          {
+            status: "error",
+            message: "User with this phone number already exist",
+          },
           400
         );
 
@@ -67,7 +73,10 @@ class UserController {
         return handleResponse(
           req,
           res,
-          { status: "error", message: "User with this phone number does not exist" },
+          {
+            status: "error",
+            message: "User with this phone number does not exist",
+          },
           400
         );
       const user = find_user[0];
@@ -92,7 +101,32 @@ class UserController {
           401
         );
 
-      const token = await AccessToken({ id: user.id, phone_number: user.phone_number });
+      if (user.is_blocked)
+        return handleResponse(
+          req,
+          res,
+          {
+            status: "error",
+            message: "User is blocked",
+          },
+          401
+        );
+
+      if (!user.is_verified)
+        return handleResponse(
+          req,
+          res,
+          {
+            status: "error",
+            message: "User is not verified",
+          },
+          401
+        );
+
+      const token = await AccessToken({
+        id: user.id,
+        phone_number: user.phone_number,
+      });
       if (!token)
         return handleResponse(
           req,
@@ -154,7 +188,7 @@ class UserController {
       if (accounts.length === 0) {
         const response = await AccountService.addAccountToDatabase({
           user_id: user.id,
-          nuban: user.phone_number
+          nuban: user.phone_number,
         });
         account.id = response[0];
         account.nuban = user.phone_number;

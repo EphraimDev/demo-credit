@@ -76,6 +76,30 @@ const validateUser = async (
         401
       );
     }
+
+    if (!user.is_verified) {
+      return handleResponse(
+        req,
+        res,
+        {
+          status: "error",
+          message: "User is not verified",
+        },
+        401
+      );
+    }
+
+    if (user.is_blocked) {
+      return handleResponse(
+        req,
+        res,
+        {
+          status: "error",
+          message: "User is blocked",
+        },
+        401
+      );
+    }
     logger(module).info(
       `Logged in user - ${req.socket.remoteAddress}- ${req.originalUrl} - ${user.phone_number}`
     );
