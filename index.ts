@@ -8,6 +8,7 @@ import handleGracefulShutdown from "./src/utils/handleGracefulShutdown";
 import dbConn from "./src/database/connect";
 import appRoutes from "./src/routes";
 import { ProcessTransactions } from "./src/jobs";
+import { handleLDAPInjection, handleSqlInjection } from "./src/middlewares";
 
 dotenv.config();
 
@@ -22,6 +23,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
+
+// check for sql and ldap injections
+app.use(handleSqlInjection);
+app.use(handleLDAPInjection);
 
 if (process.env.NODE_ENV === "development")
   app.use("/logs", express.static(path.join(__dirname, "../logs")));
