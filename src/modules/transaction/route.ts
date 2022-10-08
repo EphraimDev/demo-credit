@@ -17,5 +17,11 @@ router.post(
   TransactionValidator.transferValidation,
   TransactionController.accountToAccountTransfer
 );
+router.post(
+  "/withdraw",
+  validateUser,
+  TransactionValidator.fundAccountValidation,
+  TransactionController.accountWithdrawal
+);
 
 export default router;

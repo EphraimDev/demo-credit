@@ -35,11 +35,11 @@ export interface AccountWhereInterface {
 }
 
 export interface TransactionCreateInterface {
-  to_account: number;
+  to_account?: number;
   from_account?: number;
   amount: string;
   status?: "PENDING" | "COMPLETED" | "FAILED";
-  type: "FUNDING" | "TRANSFER";
+  type: "FUNDING" | "TRANSFER" | "WITHDRAWAL";
   comment?: string;
   ref: string;
 }
@@ -50,6 +50,7 @@ export interface TransactionWhereInterface {
   from_account?: number;
   amount?: string;
   status?: "PENDING" | "COMPLETED" | "FAILED";
-  type?: "FUNDING" | "TRANSFER";
+  type?: "FUNDING" | "TRANSFER" | "WITHDRAWAL";
   ref?: string;
+  comment?: string;
 }

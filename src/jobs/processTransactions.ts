@@ -16,7 +16,8 @@ export default async () => {
         pending_transactions = await TransactionService.findPendingTransactions(
           {
             status: "PENDING",
-          }
+            type: "TRANSFER"
+          },
         );
       } catch (error: any) {
         console.log(error);
@@ -26,10 +27,7 @@ export default async () => {
       }
 
       for (let i = 0; i < pending_transactions.length; i++) {
-        let credit_account,
-          debit_account,
-          credit_account_new_balance,
-          debit_account_new_balance;
+        let credit_account, debit_account, credit_account_new_balance;
         const transaction = pending_transactions[i];
         const amount = Number(transaction.amount);
         try {
@@ -45,39 +43,17 @@ export default async () => {
           );
           continue;
         }
-        if (transaction.type === "TRANSFER") {
-          try {
-            const find_debit_account = await AccountService.findAccounts({
-              id: transaction.from_account,
-            });
-            debit_account = find_debit_account[0];
-            debit_account_new_balance =
-              Number(debit_account.available_balance) - amount;
-          } catch (error: any) {
-            logger(module).info(
-              `PROCESS_TRANSACTION ${transaction.ref} error finding debit account - ${error.message}`
-            );
-            continue;
-          }
 
-          try {
-            await AccountService.updateAccount(
-              { id: debit_account.id },
-              {
-                available_balance: debit_account_new_balance,
-                book_balance: debit_account_new_balance,
-                total_debit: Number(debit_account.total_debit) + amount,
-              }
-            );
-            logger(module).info(
-              `PROCESS_TRANSACTION ${transaction.ref} debit account - success`
-            );
-          } catch (error: any) {
-            logger(module).info(
-              `PROCESS_TRANSACTION ${transaction.ref} error debiting account - ${error.message}`
-            );
-            continue;
-          }
+        try {
+          const find_debit_account = await AccountService.findAccounts({
+            id: transaction.from_account,
+          });
+          debit_account = find_debit_account[0];
+        } catch (error: any) {
+          logger(module).info(
+            `PROCESS_TRANSACTION ${transaction.ref} error finding debit account - ${error.message}`
+          );
+          continue;
         }
 
         try {
@@ -85,7 +61,7 @@ export default async () => {
             { id: credit_account.id },
             {
               available_balance: credit_account_new_balance,
-              book_balance: credit_account_new_balance,
+              book_balance: Number(credit_account.book_balance) + amount,
               total_credit: Number(credit_account.total_credit) + amount,
             }
           );
@@ -108,6 +84,24 @@ export default async () => {
               status: "FAILED",
             }
           );
+        }
+
+        try {
+          await AccountService.updateAccount(
+            { id: debit_account.id },
+            {
+              book_balance: Number(debit_account.book_balance) - amount,
+              total_debit: Number(debit_account.total_debit) + amount,
+            }
+          );
+          logger(module).info(
+            `PROCESS_TRANSACTION ${transaction.ref} debit account - success`
+          );
+        } catch (error: any) {
+          logger(module).info(
+            `PROCESS_TRANSACTION ${transaction.ref} error debiting account - ${error.message}`
+          );
+          continue;
         }
       }
 

@@ -15,13 +15,13 @@ export async function up(knex: Knex): Promise<void> {
       .unsigned()
       .index()
       .references("id")
-      .inTable("accounts");
+      .inTable("accounts")
+      .nullable();
     table.string("amount", 255).notNullable();
     table
       .enu("status", ["PENDING", "COMPLETED", "FAILED"])
       .defaultTo("PENDING");
-    table
-      .enu("type", ["FUNDING", "TRANSFER"]);
+    table.enu("type", ["FUNDING", "TRANSFER", "WITHDRAW"]);
     table.string("ref", 255).notNullable();
     table.string("comment", 255).nullable();
     table.timestamp("created_at").defaultTo(knex.raw("CURRENT_TIMESTAMP"));
