@@ -35,19 +35,17 @@ export interface AccountCreateInterface {
   user_id: number;
   available_balance?: number;
   book_balance?: number;
-  total_credit?: number;
-  total_debit?: number;
+  nuban: string;
   is_active?: boolean;
 }
 
 export interface AccountWhereInterface {
   id?: number;
   user_id?: number;
+  nuban?: string;
   available_balance?: number;
   book_balance?: number;
-  total_credit?: number;
-  total_debit?: number;
-  is_active?: boolean;
+  status?: "ACTIVE" | "INACTIVE" | "PND" | "PNC";
   created_at?: Date;
   updated_at?: Date;
 }
@@ -91,6 +89,7 @@ export interface TransactionWhereInterface {
   amount?: string;
   status?: "PENDING" | "COMPLETED" | "FAILED";
   ref?: string;
+  comment?: string;
   created_at?: Date;
   updated_at?: Date;
 }

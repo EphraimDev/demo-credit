@@ -9,7 +9,7 @@ class UserValidator {
     next: NextFunction
   ) {
     const schema = Joi.object({
-      email: Joi.string().trim().email().required(),
+      phone_number: Joi.string().trim().required(),
       password: Joi.string().trim().required(),
     });
 

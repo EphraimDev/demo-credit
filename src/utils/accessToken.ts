@@ -4,13 +4,13 @@ let { JWT_SECRET_KEY } = process.env;
 
 export interface JWTPayloadArgType {
   id: number;
-  email: string;
+  phone_number: string;
 }
 
 const AccessToken = async (user: JWTPayloadArgType) => {
   const payload = {
     id: user.id,
-    email: user.email,
+    phone_number: user.phone_number,
     time: new Date(),
   };
   if (!JWT_SECRET_KEY) return null;

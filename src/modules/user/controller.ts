@@ -6,7 +6,7 @@ import { handleResponse } from "../../middlewares";
 import UserService from "./service";
 import AccessToken from "../../utils/accessToken";
 import AccountService from "../account/service";
-import { AccountWhereInterface } from "../../database/types";
+import { AccountInterface, AccountWhereInterface, UserInterface } from "../../database/types";
 import TransactionService from "../transaction/service";
 
 dotenv.config();
@@ -16,12 +16,12 @@ class UserController {
     const { first_name, last_name, password, email, phone_number } = req.body;
 
     try {
-      const findUser = await UserService.findUsers({ email });
+      const findUser = await UserService.findUsers({ phone_number });
       if (findUser.length > 0)
         return handleResponse(
           req,
           res,
-          { status: "error", message: "User with this email already exist" },
+          { status: "error", message: "User with this phone number already exist" },
           400
         );
 
@@ -37,7 +37,10 @@ class UserController {
         password: hashedPassword,
       });
 
-      AccountService.addAccountToDatabase({ user_id: user[0] });
+      AccountService.addAccountToDatabase({
+        user_id: user[0],
+        nuban: phone_number,
+      });
 
       return handleResponse(
         req,
@@ -56,18 +59,26 @@ class UserController {
   }
 
   static async login(req: Request, res: Response) {
-    const { password, email } = req.body;
+    const { password, phone_number } = req.body;
 
     try {
-      const find_user = await UserService.findUsers({ email });
+      const find_user = await UserService.findUsers({ phone_number });
       if (find_user.length === 0)
         return handleResponse(
           req,
           res,
-          { status: "error", message: "User with this email does not exist" },
+          { status: "error", message: "User with this phone number does not exist" },
           400
         );
       const user = find_user[0];
+
+      if (!user.password)
+        return handleResponse(
+          req,
+          res,
+          { status: "error", message: "Invalid phone number or password" },
+          400
+        );
 
       const is_password_correct = bcrypt.compareSync(
         password.trim(),
@@ -77,11 +88,11 @@ class UserController {
         return handleResponse(
           req,
           res,
-          { status: "error", message: "Email or password is incorrect" },
+          { status: "error", message: "phone number or password is incorrect" },
           401
         );
 
-      const token = await AccessToken({ id: user.id, email: user.email });
+      const token = await AccessToken({ id: user.id, phone_number: user.phone_number });
       if (!token)
         return handleResponse(
           req,
@@ -133,28 +144,29 @@ class UserController {
         401
       );
     try {
-      const accounts = await AccountService.findAccounts({ user_id: user.id });
+      const accounts: AccountInterface[] = await AccountService.findAccounts({
+        user_id: user.id,
+      });
       const account: AccountWhereInterface = {
         available_balance: 0,
         book_balance: 0,
-        total_credit: 0,
-        total_debit: 0,
       };
       if (accounts.length === 0) {
         const response = await AccountService.addAccountToDatabase({
           user_id: user.id,
+          nuban: user.phone_number
         });
         account.id = response[0];
+        account.nuban = user.phone_number;
       } else {
         account.available_balance = accounts[0].available_balance;
         account.book_balance = accounts[0].book_balance;
-        account.total_credit = accounts[0].total_credit;
-        account.total_debit = accounts[0].total_debit;
         account.id = accounts[0].id;
+        account.nuban = accounts[0].nuban;
       }
       const transactions = await TransactionService.findUserTransactions(
-        { from_account: account.id },
-        { to_account: account.id }
+        { debit_account: account.nuban },
+        { credit_account: account.nuban }
       );
       return handleResponse(
         req,

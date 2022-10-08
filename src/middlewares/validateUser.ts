@@ -11,7 +11,7 @@ let { JWT_SECRET_KEY } = process.env;
 
 export interface decodepLoad {
   id: number;
-  email: string;
+  phone_number: string;
 }
 
 const validateUser = async (
@@ -50,7 +50,7 @@ const validateUser = async (
     
     const users = await UserService.findUsers({
       id: decoded.id,
-      email: decoded.email,
+      phone_number: decoded.phone_number,
     });
 
     if (users.length === 0)
@@ -77,7 +77,7 @@ const validateUser = async (
       );
     }
     logger(module).info(
-      `Logged in user - ${req.socket.remoteAddress}- ${req.originalUrl} - ${user.email}`
+      `Logged in user - ${req.socket.remoteAddress}- ${req.originalUrl} - ${user.phone_number}`
     );
     req.user = user;
     next();

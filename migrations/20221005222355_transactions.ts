@@ -17,7 +17,6 @@ export async function up(knex: Knex): Promise<void> {
     table
       .enu("status", ["PENDING", "COMPLETED", "FAILED"])
       .defaultTo("PENDING");
-    table.enu("type", ["FUND", "TRANSFER", "WITHDRAW"]);
     table.string("ref", 255).notNullable();
     table.string("comment", 255).nullable();
     table.timestamp("created_at").defaultTo(knex.raw("CURRENT_TIMESTAMP"));

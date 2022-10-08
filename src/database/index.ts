@@ -12,7 +12,7 @@ const User = () => dbConn("users");
  *
  * @returns {Knex.QueryBuilder<Account, {}>}
  */
-const Account = () => dbConn("accounts");
+const Account = () => dbConn("wallets");
 
 /**
  * @typedef {Object} Transaction

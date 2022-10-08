@@ -1,6 +1,7 @@
 import { Transaction } from "../../database";
 import {
   TransactionCreateInterface,
+  TransactionInterface,
   TransactionWhereInterface,
 } from "../../database/types";
 
@@ -24,7 +25,7 @@ class TransactionService {
     }
   }
 
-  static async findPendingTransactions(where: TransactionWhereInterface) {
+  static async findPendingTransactions(where: TransactionWhereInterface) : Promise<TransactionInterface[]> {
     try {
       return Transaction().where(where);
     } catch (error: any) {

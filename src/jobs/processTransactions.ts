@@ -1,4 +1,5 @@
 import cron from "node-cron";
+import { AccountInterface, TransactionInterface } from "../database/types";
 import AccountService from "../modules/account/service";
 import TransactionService from "../modules/transaction/service";
 import logger from "../utils/logger";
@@ -11,13 +12,12 @@ export default async () => {
       logger(module).info(
         `PROCESS_TRANSACTIONS_JOB starts at ${Date().toString()}`
       );
-      let pending_transactions: any[] = [];
+      let pending_transactions: TransactionInterface[] = [];
       try {
         pending_transactions = await TransactionService.findPendingTransactions(
           {
             status: "PENDING",
-            type: "TRANSFER"
-          },
+          }
         );
       } catch (error: any) {
         console.log(error);
@@ -27,16 +27,14 @@ export default async () => {
       }
 
       for (let i = 0; i < pending_transactions.length; i++) {
-        let credit_account, debit_account, credit_account_new_balance;
+        let credit_account: AccountInterface, debit_account: AccountInterface;
         const transaction = pending_transactions[i];
-        const amount = Number(transaction.amount);
         try {
-          const find_credit_account = await AccountService.findAccounts({
-            id: transaction.to_account,
-          });
+          const find_credit_account: AccountInterface[] =
+            await AccountService.findAccounts({
+              nuban: transaction.credit_account,
+            });
           credit_account = find_credit_account[0];
-          credit_account_new_balance =
-            Number(credit_account.available_balance) + amount;
         } catch (error: any) {
           logger(module).info(
             `PROCESS_TRANSACTION ${transaction.ref} error finding credit account - ${error.message}`
@@ -45,9 +43,10 @@ export default async () => {
         }
 
         try {
-          const find_debit_account = await AccountService.findAccounts({
-            id: transaction.from_account,
-          });
+          const find_debit_account: AccountInterface[] =
+            await AccountService.findAccounts({
+              nuban: transaction.debit_account,
+            });
           debit_account = find_debit_account[0];
         } catch (error: any) {
           logger(module).info(
@@ -57,12 +56,20 @@ export default async () => {
         }
 
         try {
+          const new_balance =
+            Number(credit_account.available_balance) +
+            Number(transaction.amount);
+          const new_book_balance =
+            Number(credit_account.book_balance) + Number(transaction.amount);
           await AccountService.updateAccount(
-            { id: credit_account.id },
+            { nuban: credit_account.nuban },
             {
-              available_balance: credit_account_new_balance,
-              book_balance: Number(credit_account.book_balance) + amount,
-              total_credit: Number(credit_account.total_credit) + amount,
+              available_balance: Number(
+                parseFloat(new_balance.toString()).toFixed(2)
+              ),
+              book_balance: Number(
+                parseFloat(new_book_balance.toString()).toFixed(2)
+              ),
             }
           );
           logger(module).info(
@@ -87,11 +94,14 @@ export default async () => {
         }
 
         try {
+          const new_book_balance =
+            Number(debit_account.book_balance) - Number(transaction.amount);
           await AccountService.updateAccount(
-            { id: debit_account.id },
+            { nuban: debit_account.nuban },
             {
-              book_balance: Number(debit_account.book_balance) - amount,
-              total_debit: Number(debit_account.total_debit) + amount,
+              book_balance: Number(
+                parseFloat(new_book_balance.toString()).toFixed(2)
+              ),
             }
           );
           logger(module).info(

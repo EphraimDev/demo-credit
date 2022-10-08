@@ -1,5 +1,9 @@
 import { User } from "../../database";
-import { UserCreateInterface, UserWhereInterface } from "../../database/types";
+import {
+  UserCreateInterface,
+  UserInterface,
+  UserWhereInterface,
+} from "../../database/types";
 
 class UserService {
   static async addUserToDatabase(user: UserCreateInterface) {
@@ -10,10 +14,8 @@ class UserService {
     }
   }
 
-  static async findUsers(where: UserWhereInterface) {
+  static async findUsers(where: UserWhereInterface): Promise<UserInterface[]> {
     try {
-      console.log(where);
-
       return User().where(where);
     } catch (error: any) {
       throw new Error(error.message);
