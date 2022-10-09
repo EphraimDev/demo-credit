@@ -8,6 +8,9 @@ export interface JWTPayloadArgType {
 }
 
 const AccessToken = async (user: JWTPayloadArgType) => {
+  if (!user) return null;
+  if (!user.phone_number || !user.id) return null;
+
   const payload = {
     id: user.id,
     phone_number: user.phone_number,
