@@ -3,7 +3,7 @@
 This is used to create users and their wallets, fund, transfer and withdraw from user wallets
 
 ## Schema Design
-![alt text](https://github.com/EphraimDev/demo-credit/blob/main/dbdesign.PNG?raw=true)
+![alt text](https://github.com/EphraimDev/demo-credit/blob/main/dbdesign.png?raw=true)
 
 ## Installation Guide
 
