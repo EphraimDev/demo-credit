@@ -280,6 +280,13 @@ class TransactionController {
           amount: parseFloat(amount).toFixed(2),
           ref: generateRef(),
         });
+      if (!store_transaction)
+        return handleResponse(
+          req,
+          res,
+          { status: "error", message: "failed to update transaction" },
+          400
+        );
       transactionId = store_transaction[0];
     } catch (error: any) {
       return handleResponse(
@@ -424,6 +431,13 @@ class TransactionController {
           amount: parseFloat(amount).toFixed(2),
           ref: generateRef(),
         });
+      if (!store_transaction)
+        return handleResponse(
+          req,
+          res,
+          { status: "error", message: "failed to update transaction" },
+          400
+        );
       transactionId = store_transaction[0];
     } catch (error: any) {
       return handleResponse(

@@ -6,8 +6,6 @@ import { handleResponse } from "../../middlewares";
 import UserService from "./service";
 import AccessToken from "../../utils/accessToken";
 import WalletService from "../wallet/service";
-import { WalletInterface, WalletWhereInterface } from "../../database/types";
-import TransactionService from "../transaction/service";
 
 dotenv.config();
 
@@ -199,31 +197,22 @@ class UserController {
         { status: "error", message: "Unauthorized" },
         401
       );
-    try {
-      return handleResponse(
-        req,
-        res,
-        {
-          status: "success",
-          message: "User profile fetched successfully",
-          data: {
-            id: user.id,
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            phone_number: user.phone_number,
-          },
+    return handleResponse(
+      req,
+      res,
+      {
+        status: "success",
+        message: "User profile fetched successfully",
+        data: {
+          id: user.id,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          phone_number: user.phone_number,
         },
-        200
-      );
-    } catch (error: any) {
-      return handleResponse(
-        req,
-        res,
-        { status: "error", message: error.message },
-        500
-      );
-    }
+      },
+      200
+    );
   }
 }
 

@@ -12,7 +12,7 @@ export default async () => {
       logger(module).info(
         `PROCESS_TRANSACTIONS_JOB starts at ${Date().toString()}`
       );
-      let pending_transactions: TransactionInterface[] = [];
+      let pending_transactions: TransactionInterface[] | null = [];
       try {
         pending_transactions = await TransactionService.findPendingTransactions(
           {
@@ -24,6 +24,13 @@ export default async () => {
         logger(module).info(
           `PROCESS_TRANSACTIONS JOB error fetching pending transactions - ${error.message}`
         );
+      }
+
+      if (!pending_transactions) {
+        logger(module).info(
+          `PROCESS_TRANSACTIONS JOB error fetching pending transactions`
+        );
+        return;
       }
 
       for (let i = 0; i < pending_transactions.length; i++) {
@@ -130,5 +137,5 @@ export default async () => {
       );
       return;
     })
-    .stop();
+    .start();
 };

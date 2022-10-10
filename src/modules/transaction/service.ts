@@ -6,30 +6,37 @@ import {
 } from "../../database/types";
 
 class TransactionService {
-  static async addTransactionToDatabase(input: TransactionCreateInterface) {
+  static async addTransactionToDatabase(
+    input: TransactionCreateInterface
+  ): Promise<number[] | null> {
     try {
-      return Transaction().insert(input);
+      const transaction = await Transaction().insert(input);
+      return transaction;
     } catch (error: any) {
-      throw new Error(error.message);
+      return null;
     }
   }
 
   static async findUserTransactions(
     where: TransactionWhereInterface,
     orWhere: TransactionWhereInterface
-  ) {
+  ): Promise<TransactionInterface[] | null> {
     try {
-      return Transaction().where(where).orWhere(orWhere);
+      const transactions = await Transaction().where(where).orWhere(orWhere);
+      return transactions;
     } catch (error: any) {
-      throw new Error(error.message);
+      return null;
     }
   }
 
-  static async findPendingTransactions(where: TransactionWhereInterface) : Promise<TransactionInterface[]> {
+  static async findPendingTransactions(
+    where: TransactionWhereInterface
+  ): Promise<TransactionInterface[] | null> {
     try {
-      return Transaction().where(where);
+      const transactions = await Transaction().where(where);
+      return transactions;
     } catch (error: any) {
-      throw new Error(error.message);
+      return null;
     }
   }
 
@@ -38,9 +45,10 @@ class TransactionService {
     input: TransactionWhereInterface
   ) {
     try {
-      return Transaction().where(where).update(input);
+      const transaction = await Transaction().where(where).update(input);
+      return transaction;
     } catch (error: any) {
-      throw new Error(error.message);
+      return null;
     }
   }
 }
