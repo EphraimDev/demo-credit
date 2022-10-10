@@ -1,13 +1,13 @@
 import { Response } from "express";
 import { IGetUserAuthInfoRequest } from "../../../types/express";
-import { AccountInterface } from "../../database/types";
+import { WalletInterface } from "../../database/types";
 import { handleResponse } from "../../middlewares";
 import generateRef from "../../utils/generateRef";
-import AccountService from "../account/service";
+import WalletService from "../wallet/service";
 import TransactionService from "./service";
 
 class TransactionController {
-  static async accountToAccountTransfer(
+  static async walletToWalletTransfer(
     req: IGetUserAuthInfoRequest,
     res: Response
   ) {
@@ -19,14 +19,23 @@ class TransactionController {
         { status: "error", message: "Unauthorized" },
         401
       );
-    let debit_account: AccountInterface, credit_account: AccountInterface;
+    let debit_account: WalletInterface, credit_account: WalletInterface;
     const { amount, receiver } = req.body;
     // validate sending account
     try {
-      const find_debit_account: AccountInterface[] =
-        await AccountService.findAccounts({
-          user_id: user.id,
-        });
+      const find_debit_account = await WalletService.findWallets({
+        user_id: user.id,
+      });
+      if (!find_debit_account)
+        return handleResponse(
+          req,
+          res,
+          {
+            status: "error",
+            message: "Failed to fetch sender's wallet",
+          },
+          404
+        );
       if (find_debit_account.length === 0)
         return handleResponse(
           req,
@@ -60,10 +69,19 @@ class TransactionController {
     }
     // validate receiving account
     try {
-      const find_credit_account: AccountInterface[] =
-        await AccountService.findAccounts({
-          nuban: receiver,
-        });
+      const find_credit_account = await WalletService.findWallets({
+        nuban: receiver,
+      });
+      if (!find_credit_account)
+        return handleResponse(
+          req,
+          res,
+          {
+            status: "error",
+            message: "Failed to fetch receiver's wallet",
+          },
+          400
+        );
       if (find_credit_account.length === 0)
         return handleResponse(
           req,
@@ -81,8 +99,7 @@ class TransactionController {
           res,
           {
             status: "error",
-            message:
-              "Credit restriction is placed on the receiving account",
+            message: "Credit restriction is placed on the receiving account",
           },
           400
         );
@@ -125,7 +142,7 @@ class TransactionController {
       });
       const new_balance =
         Number(debit_account.available_balance) - Number(amount);
-      await AccountService.updateAccount(
+      await WalletService.updateWallet(
         { id: debit_account.id },
         {
           available_balance: Number(
@@ -152,7 +169,7 @@ class TransactionController {
     }
   }
 
-  static async accountWithdrawal(req: IGetUserAuthInfoRequest, res: Response) {
+  static async walletWithdrawal(req: IGetUserAuthInfoRequest, res: Response) {
     const user = req.user;
     const { amount } = req.body;
     if (!user)
@@ -162,13 +179,22 @@ class TransactionController {
         { status: "error", message: "Unauthorized" },
         401
       );
-    let credit_account: AccountInterface, debit_account: AccountInterface;
+    let credit_account: WalletInterface, debit_account: WalletInterface;
     //check sending account
     try {
-      let find_debit_account: AccountInterface[] =
-        await AccountService.findAccounts({
-          user_id: user.id,
-        });
+      let find_debit_account = await WalletService.findWallets({
+        user_id: user.id,
+      });
+      if (!find_debit_account)
+        return handleResponse(
+          req,
+          res,
+          {
+            status: "error",
+            message: "Failed to fetch debit wallet",
+          },
+          400
+        );
       if (find_debit_account.length === 0)
         return handleResponse(
           req,
@@ -213,10 +239,19 @@ class TransactionController {
     }
     //check receiving account
     try {
-      let find_credit_account: AccountInterface[] =
-        await AccountService.findAccounts({
-          nuban: process.env.SETTLEMENT_ACCOUNT,
-        });
+      let find_credit_account = await WalletService.findWallets({
+        nuban: process.env.SETTLEMENT_ACCOUNT,
+      });
+      if (!find_credit_account)
+        return handleResponse(
+          req,
+          res,
+          {
+            status: "error",
+            message: "Failed to fetch receiver's wallet",
+          },
+          400
+        );
       if (find_credit_account.length === 0)
         return handleResponse(
           req,
@@ -258,7 +293,7 @@ class TransactionController {
     try {
       const new_balance =
         Number(debit_account.available_balance) - Number(amount);
-      await AccountService.updateAccount(
+      await WalletService.updateWallet(
         { id: debit_account.id },
         {
           available_balance: Number(
@@ -290,7 +325,7 @@ class TransactionController {
     );
   }
 
-  static async fundAccount(req: IGetUserAuthInfoRequest, res: Response) {
+  static async fundWallet(req: IGetUserAuthInfoRequest, res: Response) {
     const user = req.user;
     if (!user)
       return handleResponse(
@@ -299,15 +334,23 @@ class TransactionController {
         { status: "error", message: "Unauthorized" },
         401
       );
-    let debit_account: AccountInterface;
+    let debit_account: WalletInterface;
     const { amount } = req.body;
     let credit_account;
     try {
-      let find_accounts: AccountInterface[] = await AccountService.findAccounts(
-        {
-          user_id: user.id,
-        }
-      );
+      let find_accounts = await WalletService.findWallets({
+        user_id: user.id,
+      });
+      if (!find_accounts)
+        return handleResponse(
+          req,
+          res,
+          {
+            status: "error",
+            message: "Failed to fetch receiver's wallet",
+          },
+          400
+        );
       if (find_accounts.length === 0)
         return handleResponse(
           req,
@@ -320,7 +363,7 @@ class TransactionController {
           404
         );
       credit_account = find_accounts[0];
-      
+
       if (["INACTIVE", "PNC"].includes(credit_account.status))
         return handleResponse(
           req,
@@ -340,11 +383,19 @@ class TransactionController {
       );
     }
     try {
-      let find_accounts: AccountInterface[] = await AccountService.findAccounts(
-        {
-          nuban: process.env.SETTLEMENT_ACCOUNT,
-        }
-      );
+      let find_accounts = await WalletService.findWallets({
+        nuban: process.env.SETTLEMENT_ACCOUNT,
+      });
+      if (!find_accounts)
+        return handleResponse(
+          req,
+          res,
+          {
+            status: "error",
+            message: "Failed to fetch settlement's wallet",
+          },
+          400
+        );
       if (find_accounts.length === 0)
         return handleResponse(
           req,
@@ -386,7 +437,7 @@ class TransactionController {
     try {
       const new_balance =
         Number(debit_account.available_balance) - Number(amount);
-      await AccountService.updateAccount(
+      await WalletService.updateWallet(
         { id: debit_account.id },
         {
           available_balance: Number(
@@ -406,13 +457,6 @@ class TransactionController {
         500
       );
     }
-
-    // try {
-    //   await TransactionService.updateTransaction(
-    //     { id: transactionId },
-    //     { status: "COMPLETED" }
-    //   );
-    // } catch (error) {}
 
     return handleResponse(
       req,

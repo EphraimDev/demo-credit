@@ -8,20 +8,20 @@ const router = Router();
 router.post(
   "/fund",
   validateUser,
-  TransactionValidator.fundAccountValidation,
-  TransactionController.fundAccount
+  TransactionValidator.fundWalletValidation,
+  TransactionController.fundWallet
 );
 router.post(
   "/transfer",
   validateUser,
   TransactionValidator.transferValidation,
-  TransactionController.accountToAccountTransfer
+  TransactionController.walletToWalletTransfer
 );
 router.post(
   "/withdraw",
   validateUser,
-  TransactionValidator.fundAccountValidation,
-  TransactionController.accountWithdrawal
+  TransactionValidator.fundWalletValidation,
+  TransactionController.walletWithdrawal
 );
 
 export default router;

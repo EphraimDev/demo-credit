@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { handleResponse } from "../../middlewares";
 
 class TransactionValidator {
-  static async fundAccountValidation(
+  static async fundWalletValidation(
     req: Request,
     res: Response,
     next: NextFunction

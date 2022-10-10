@@ -53,6 +53,14 @@ const validateUser = async (
       phone_number: decoded.phone_number,
     });
 
+    if (!users)
+      return handleResponse(
+        req,
+        res,
+        { status: "error", message: "Invalid phone number or password" },
+        400
+      );
+
     if (users.length === 0)
       return handleResponse(
         req,

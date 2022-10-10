@@ -8,7 +8,10 @@
     "start": "node dist/index.js",
     "dev": "concurrently \"npx tsc -p tsconfig.prod.json --watch\" \"nodemon -q dist/index.js\"",
     "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text ts-mocha -r dotenv/config --timeout 20000 --exit --recursive tests/**/*.spec.ts",
-    "migration": "npx knex migrate:latest"
+    "migration": "npx knex migrate:latest",
+    "db:drop": "cross-env NODE_ENV=test node dist/src/database/drop.js",
+    "migration:test": "cross-env NODE_ENV=test npx knex migrate:latest",
+    "test:all": "npm run db:drop && npm run migration:test && npm run test && npm run db:drop"
   },
   "repository": {
     "type": "git",

@@ -8,11 +8,11 @@ import dbConn from "./connect";
 const User = () => dbConn("users");
 
 /**
- * @typedef {Object} Account
+ * @typedef {Object} Wallet
  *
- * @returns {Knex.QueryBuilder<Account, {}>}
+ * @returns {Knex.QueryBuilder<Wallet, {}>}
  */
-const Account = () => dbConn("wallets");
+const Wallet = () => dbConn("wallets");
 
 /**
  * @typedef {Object} Transaction
@@ -21,4 +21,4 @@ const Account = () => dbConn("wallets");
  */
 const Transaction = () => dbConn("transactions");
 
-export { User, Account, Transaction };
+export { User, Wallet, Transaction };

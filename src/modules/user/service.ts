@@ -6,30 +6,37 @@ import {
 } from "../../database/types";
 
 class UserService {
-  static async addUserToDatabase(user: UserCreateInterface) {
+  static async addUserToDatabase(
+    payload: UserCreateInterface
+  ): Promise<number[] | null> {
     try {
-      return User().insert(user);
+      const user = await User().insert(payload);
+      return user;
     } catch (error: any) {
-      throw new Error(error.message);
+      return null;
     }
   }
 
-  static async findUsers(where: UserWhereInterface): Promise<UserInterface[]> {
+  static async findUsers(
+    where: UserWhereInterface
+  ): Promise<UserInterface[] | null> {
     try {
-      return User().where(where);
+      const user = await User().where(where);
+      return user;
     } catch (error: any) {
-      throw new Error(error.message);
+      return null;
     }
   }
 
   static async updateUser(
     where: UserWhereInterface,
     input: UserWhereInterface
-  ) {
+  ): Promise<number | null> {
     try {
-      return User().where(where).update(input);
+      const user = await User().where(where).update(input);
+      return user;
     } catch (error: any) {
-      throw new Error(error.message);
+      return null;
     }
   }
 }

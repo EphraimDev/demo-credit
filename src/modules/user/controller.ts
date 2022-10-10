@@ -5,11 +5,8 @@ import { IGetUserAuthInfoRequest } from "../../../types/express";
 import { handleResponse } from "../../middlewares";
 import UserService from "./service";
 import AccessToken from "../../utils/accessToken";
-import AccountService from "../account/service";
-import {
-  AccountInterface,
-  AccountWhereInterface,
-} from "../../database/types";
+import WalletService from "../wallet/service";
+import { WalletInterface, WalletWhereInterface } from "../../database/types";
 import TransactionService from "../transaction/service";
 
 dotenv.config();
@@ -19,8 +16,15 @@ class UserController {
     const { first_name, last_name, password, email, phone_number } = req.body;
 
     try {
-      const findUser = await UserService.findUsers({ phone_number });
-      if (findUser.length > 0)
+      const find_user = await UserService.findUsers({ phone_number });
+      if (!find_user)
+        return handleResponse(
+          req,
+          res,
+          { status: "error", message: "Invalid phone number or password" },
+          400
+        );
+      if (find_user.length > 0)
         return handleResponse(
           req,
           res,
@@ -43,7 +47,18 @@ class UserController {
         password: hashedPassword,
       });
 
-      AccountService.addAccountToDatabase({
+      if (!user)
+        return handleResponse(
+          req,
+          res,
+          {
+            status: "error",
+            message: "Unable to create user. Please try again",
+          },
+          400
+        );
+
+      WalletService.addWalletToDatabase({
         user_id: user[0],
         nuban: phone_number,
       });
@@ -69,6 +84,13 @@ class UserController {
 
     try {
       const find_user = await UserService.findUsers({ phone_number });
+      if (!find_user)
+        return handleResponse(
+          req,
+          res,
+          { status: "error", message: "Invalid phone number or password" },
+          400
+        );
       if (find_user.length === 0)
         return handleResponse(
           req,
@@ -144,7 +166,7 @@ class UserController {
         res,
         {
           status: "success",
-          message: "User created successfully",
+          message: "User login successfully",
           data: {
             user: {
               id: user.id,
@@ -156,7 +178,7 @@ class UserController {
             token,
           },
         },
-        201
+        200
       );
     } catch (error: any) {
       return handleResponse(
@@ -178,46 +200,18 @@ class UserController {
         401
       );
     try {
-      const accounts: AccountInterface[] = await AccountService.findAccounts({
-        user_id: user.id,
-      });
-      const account: AccountWhereInterface = {
-        available_balance: 0,
-        book_balance: 0,
-      };
-      if (accounts.length === 0) {
-        const response = await AccountService.addAccountToDatabase({
-          user_id: user.id,
-          nuban: user.phone_number,
-        });
-        account.id = response[0];
-        account.nuban = user.phone_number;
-      } else {
-        account.available_balance = accounts[0].available_balance;
-        account.book_balance = accounts[0].book_balance;
-        account.id = accounts[0].id;
-        account.nuban = accounts[0].nuban;
-      }
-      const transactions = await TransactionService.findUserTransactions(
-        { debit_account: account.nuban },
-        { credit_account: account.nuban }
-      );
       return handleResponse(
         req,
         res,
         {
           status: "success",
-          message: "User created successfully",
+          message: "User profile fetched successfully",
           data: {
-            user: {
-              id: user.id,
-              email: user.email,
-              first_name: user.first_name,
-              last_name: user.last_name,
-              phone_number: user.phone_number,
-            },
-            account,
-            transactions,
+            id: user.id,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            phone_number: user.phone_number,
           },
         },
         200

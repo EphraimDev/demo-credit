@@ -58,4 +58,3 @@ sigs.forEach((sig) => {
   process.on(sig, () => handleGracefulShutdown(server));
 });
 
-export { server, dbConn };

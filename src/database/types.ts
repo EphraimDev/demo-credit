@@ -31,7 +31,7 @@ export interface UserInterface {
   updated_at: Date;
 }
 
-export interface AccountCreateInterface {
+export interface WalletCreateInterface {
   user_id: number;
   available_balance?: number;
   book_balance?: number;
@@ -39,7 +39,7 @@ export interface AccountCreateInterface {
   is_active?: boolean;
 }
 
-export interface AccountWhereInterface {
+export interface WalletWhereInterface {
   id?: number;
   user_id?: number;
   nuban?: string;
@@ -50,7 +50,7 @@ export interface AccountWhereInterface {
   updated_at?: Date;
 }
 
-export interface AccountInterface {
+export interface WalletInterface {
   id: number;
   user_id: number;
   nuban: string;
